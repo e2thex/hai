@@ -148,7 +148,13 @@ $(function() {
       
       
     }
+    else if (e.which == 8) {
+      var replace = fs.parent().closest("fieldset");
+      $(this).val(replace.children("legend").html() + ' ');
+      replace.replaceWith(fs);
+    }
     $(this).focus();
+    console.log(e.which);
     resize();
   }).keyup(function (e) {
     $('.object >fieldset.temp > legend').each(function(e) {
