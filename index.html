@@ -1,0 +1,203 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>HIA</title>
+    <meta name="description" content="HIA site" />
+<script src = 'http://code.jquery.com/jquery-1.7.2.min.js'></script>
+<script src = 'aspot/lib/aspot.js'></script>
+</head>
+<body>
+  <header>
+    <label for ="search">Search </label><input id="search"></input>
+  </header>
+  <section id="data">
+  <fieldset><div>
+    <fieldset><legend>joe</legend><div class="predicate">
+      <fieldset><legend>friend of</legend><div class="object">
+        <fieldset><legend>sue</legend><div class="predicate">
+        </div></fieldset>
+      </div></fieldset>
+      <fieldset><legend>friend of again</legend><div class="object">
+        <fieldset><legend>sam</legend><div class="predicate">
+          <fieldset><legend>son of</legend><div class="object">
+            <fieldset><legend>tim</legend><div class="predicate">
+            </div></fieldset>
+          </div></fieldset>
+          <fieldset><legend>husband of</legend><div class="object">
+            <fieldset><legend>Jo</legend><div class="predicate">
+            </div></fieldset>
+          </div></fieldset>
+        </div></fieldset>
+      </div></fieldset>
+      <fieldset><legend>is a</legend><div class="object">
+        <fieldset><legend>human</legend><div class="predicate">
+        </div></fieldset>
+      </div></fieldset>
+    </div></fieldset>
+    <fieldset id = "add"><legend><textarea id="add"></textarea></legend></fieldset>
+  </div></fieldset>
+  </section>
+</body>
+</html>
+<script> 
+
+$(function() {
+  var resize = function() {
+    $('div:not(".predicate") > fieldset > legend').each(function() {
+        $(this).css('height', 'auto')
+      $(this).css('height', $(this).parent().height()-25);
+    });
+  };
+  var entry = function(value, isPredicate) {
+    var fs = $("<fieldset><legend>"+value+"</legend><div></div></fieldset>");
+    if(typeof isPredicate !== 'undefined' && isPredicate)  {
+      fs.children("div").addClass("object");
+    }
+    else {
+      fs.addClass("temp");
+      fs.children("div").addClass("predicate");
+    }
+    return fs;
+  }
+
+  $('#add textarea').keydown(function(e) {
+    var fs = $(this).closest("fieldset");
+    var moveright = function() {
+      var place = next(fs);
+      place.append($(fs));
+      if(place.closest("fieldset").hasClass("predicate")) {
+        $(fs).removeClass("predicate");
+      }
+      else {
+        $(fs).addClass("predicate");
+      }
+      resize();
+    }
+    if(e.which == 39) {
+      if($(this).val() != '') {
+        var newfs = entry($(this).val(), $(this).is("div.predicate > fieldset > legend > textarea"));
+        $(this).val('');
+        fs.before(newfs);
+        $(fs).prev().children("div").append(fs);
+      }
+      else {
+        if($(fs).prev().children("div").hasClass("object")) {
+          $(fs).prev().children("div").children("fieldset").last().children("div").append(fs);
+        }
+        else {
+          $(fs).prev().children("div").append(fs);
+        }
+      }
+      
+    }
+    else if (e.which == 38) {
+      if($(this).val() == '') {
+        var branch = $(fs);
+        while(!branch.prev().length) {
+          if(branch.closest("div").parent().length) {
+            branch = branch.closest("div").parent();
+          }
+          else {
+            break;
+          }
+        }
+        branch.prev().find("div").last().append(fs);
+      }
+    }
+    else if (e.which == 40) {
+      if($(this).val() == '') {
+        var branch = $(fs);
+        while(!branch.next().length) {
+          if(branch.closest("div").parent().length) {
+            branch = branch.closest("div").parent();
+          }
+          else {
+            break;
+          }
+        }
+        if(branch.next().length) {
+          branch = branch.next();
+          while(branch.find("div").first().length) {
+            branch = branch.find("div").first()
+          }
+        }
+        else {
+          branch = branch.children("div");
+        }
+        branch.append(fs);
+      }
+    }
+    else if (e.which == 37) {
+      if($(this).val() == '') {
+        if($(fs).closest("div:not(.predicate)").closest("div.predicate").length) {
+          $(fs).closest("div:not(.predicate)").closest("div.predicate").append(fs);
+        }
+        else {
+        $(fs).closest("div:not(.predicate)").closest("div").append(fs);
+        }
+      }
+      else {
+        if(!$(this).is("div.predicate > fieldset > legend > textarea")) {
+          var newfs = entry($(this).val(), false);
+          fs.before(newfs);
+        }
+        $(this).val('');
+        $(fs).closest("div.predicate").append(fs);
+      }
+      
+      
+    }
+    $(this).focus();
+    resize();
+  }).keyup(function (e) {
+    $('.object >fieldset.temp > legend').each(function(e) {
+      var trip = {}
+      trip.subject = $(this).closest("div").closest("fieldset").closest("div").prev().html();
+      trip.predicate = $(this).closest("div").prev().html();
+      trip.object = $(this).html();
+      $(this).parent().removeClass('temp');
+      console.log(JSON.stringify(trip));
+
+    });
+  });
+  resize();
+  
+}
+);
+</script>
+<style>
+fieldset {
+  padding:0;
+  border:0;
+  margin:0;
+}
+legend {
+  position:relative;
+  float:left;
+  background: #FFFFA3;
+  border-radius:20px 20px;
+  padding:10px;
+  margin-top:5px;
+}
+.object >fieldset > legend{
+  background: #C2F0C2;
+}
+.predicate >fieldset > legend{
+  background:#33cc33;
+  margin-left: -5px;
+  margin-right: -5px;
+  opacity:.9;
+}
+fieldset div {
+  float:left;
+}
+header {
+  height: 20px;
+  position: fixed;
+  top: 0px;
+}
+body {
+  padding-top:20px;
+}
+</style>
