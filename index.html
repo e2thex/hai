@@ -4,16 +4,22 @@
     <meta charset="utf-8" />
     <title>HIA</title>
     <meta name="description" content="HIA site" />
-<script src = 'http://code.jquery.com/jquery-1.7.2.min.js'></script>
+<script src = 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+<script src = 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js'></script>
 <script src = 'aspot/lib/aspot.js'></script>
+<script src = 'hai.js'></script>
 </head>
 <body>
   <header>
     <label for ="search">Search </label><input id="search"></input>
+    <input type='button' value = 'Save' id ='save' />
+    <input type='button' value = 'Load' id ='load' />
   </header>
+<a href="data:application/octet-stream;charset=utf-8;base64,Zm9vIGJhcg==">text file</a>
+  
   <section id="data">
-  <fieldset><div>
-    <fieldset><legend>joe</legend><div class="predicate">
+  <fieldset><div class="subject">
+    <!--fieldset><legend>joe</legend><div class="predicate">
       <fieldset><legend>friend of</legend><div class="object">
         <fieldset><legend>sue</legend><div class="predicate">
         </div></fieldset>
@@ -34,143 +40,13 @@
         <fieldset><legend>human</legend><div class="predicate">
         </div></fieldset>
       </div></fieldset>
-    </div></fieldset>
+    </div></fieldset-->
     <fieldset id = "add"><legend><textarea id="add"></textarea></legend></fieldset>
   </div></fieldset>
   </section>
 </body>
 </html>
 <script> 
-
-$(function() {
-  var resize = function() {
-    $('div:not(".predicate") > fieldset > legend').each(function() {
-        $(this).css('height', 'auto')
-      $(this).css('height', $(this).parent().height()-25);
-    });
-  };
-  var entry = function(value, isPredicate) {
-    var fs = $("<fieldset><legend>"+value+"</legend><div></div></fieldset>");
-    if(typeof isPredicate !== 'undefined' && isPredicate)  {
-      fs.children("div").addClass("object");
-    }
-    else {
-      fs.addClass("temp");
-      fs.children("div").addClass("predicate");
-    }
-    return fs;
-  }
-
-  $('#add textarea').keydown(function(e) {
-    var fs = $(this).closest("fieldset");
-    var moveright = function() {
-      var place = next(fs);
-      place.append($(fs));
-      if(place.closest("fieldset").hasClass("predicate")) {
-        $(fs).removeClass("predicate");
-      }
-      else {
-        $(fs).addClass("predicate");
-      }
-      resize();
-    }
-    if(e.which == 39) {
-      if($(this).val() != '') {
-        var newfs = entry($(this).val(), $(this).is("div.predicate > fieldset > legend > textarea"));
-        $(this).val('');
-        fs.before(newfs);
-        $(fs).prev().children("div").append(fs);
-      }
-      else {
-        if($(fs).prev().children("div").hasClass("object")) {
-          $(fs).prev().children("div").children("fieldset").last().children("div").append(fs);
-        }
-        else {
-          $(fs).prev().children("div").append(fs);
-        }
-      }
-      
-    }
-    else if (e.which == 38) {
-      if($(this).val() == '') {
-        var branch = $(fs);
-        while(!branch.prev().length) {
-          if(branch.closest("div").parent().length) {
-            branch = branch.closest("div").parent();
-          }
-          else {
-            break;
-          }
-        }
-        branch.prev().find("div").last().append(fs);
-      }
-    }
-    else if (e.which == 40) {
-      if($(this).val() == '') {
-        var branch = $(fs);
-        while(!branch.next().length) {
-          if(branch.closest("div").parent().length) {
-            branch = branch.closest("div").parent();
-          }
-          else {
-            break;
-          }
-        }
-        if(branch.next().length) {
-          branch = branch.next();
-          while(branch.find("div").first().length) {
-            branch = branch.find("div").first()
-          }
-        }
-        else {
-          branch = branch.children("div");
-        }
-        branch.append(fs);
-      }
-    }
-    else if (e.which == 37) {
-      if($(this).val() == '') {
-        if($(fs).closest("div:not(.predicate)").closest("div.predicate").length) {
-          $(fs).closest("div:not(.predicate)").closest("div.predicate").append(fs);
-        }
-        else {
-        $(fs).closest("div:not(.predicate)").closest("div").append(fs);
-        }
-      }
-      else {
-        if(!$(this).is("div.predicate > fieldset > legend > textarea")) {
-          var newfs = entry($(this).val(), false);
-          fs.before(newfs);
-        }
-        $(this).val('');
-        $(fs).closest("div.predicate").append(fs);
-      }
-      
-      
-    }
-    else if (e.which == 8) {
-      var replace = fs.parent().closest("fieldset");
-      $(this).val(replace.children("legend").html() + ' ');
-      replace.replaceWith(fs);
-    }
-    $(this).focus();
-    console.log(e.which);
-    resize();
-  }).keyup(function (e) {
-    $('.object >fieldset.temp > legend').each(function(e) {
-      var trip = {}
-      trip.subject = $(this).closest("div").closest("fieldset").closest("div").prev().html();
-      trip.predicate = $(this).closest("div").prev().html();
-      trip.object = $(this).html();
-      $(this).parent().removeClass('temp');
-      console.log(JSON.stringify(trip));
-
-    });
-  });
-  resize();
-  
-}
-);
 </script>
 <style>
 fieldset {
@@ -202,8 +78,13 @@ header {
   height: 20px;
   position: fixed;
   top: 0px;
+  width:100%;
 }
 body {
   padding-top:20px;
+}
+#save,
+#load {
+  float:right;
 }
 </style>
