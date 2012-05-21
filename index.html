@@ -8,6 +8,8 @@
 <script src = 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js'></script>
 <script src = 'aspot/lib/aspot.js'></script>
 <script src = 'hai.js'></script>
+<link rel="stylesheet" href = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'></link>
+<link rel="stylesheet" href = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/ui-lightness/jquery-ui.css'></link>
 </head>
 <body>
   <header>
@@ -41,7 +43,7 @@
         </div></fieldset>
       </div></fieldset>
     </div></fieldset-->
-    <fieldset id = "add"><legend><textarea id="add"></textarea></legend></fieldset>
+    <fieldset id = "add"><legend><input id="add"></input></legend></fieldset>
   </div></fieldset>
   </section>
 </body>
@@ -86,5 +88,20 @@ body {
 #save,
 #load {
   float:right;
+}
+#add input {
+  hieght: 2em;
+}
+.expand {
+  background: url(images/expand2.png);
+  height: 16px;
+  width: 16px;
+  background-size: 16px;
+  background-repeat: no-repeat;
+  cursor: pointer;
+  display:block;
+  text-indent: -9999px;
+}
+  height:48px;
 }
 </style>

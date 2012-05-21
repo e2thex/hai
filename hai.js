@@ -8,8 +8,11 @@ hai = function(db) {
     var that = {};
     that.main = this;
     that.DBdatum = DBDatum
-    that.fieldset = $("<fieldset><legend>"+DBDatum.value+"<a class='expand'> (expand)</a></legend><div class ='predicate'></div></fieldset>");
+    that.fieldset = $("<fieldset><legend>"+DBDatum.value+"<a class='expand'>expand</a></legend><div class ='predicate'></div></fieldset>");
     that.fieldset.data('datum', that);
+    that.autocomplete = function(val) {
+      return this.main.db.load({}).map(function(trip) { return trip.predicate});
+    }
     that.expand = function() {
       var detach = false;
       if($(this.fieldset).find("#add").length) {
@@ -38,10 +41,13 @@ hai = function(db) {
       that.DBdatum = datum;
       that.fieldset = $("<fieldset><legend>"+datum.trip.predicate+"</legend><div class ='object'></div></fieldset>");
       that.fieldset.data('datum', that);
-      that.add = function(object) {
+      that.add = function(object) { 
         this.DBdatum.value = object;
         return this.main.datumBranch(this.DBdatum);
       }
+      that.autocomplete = function(val) {
+        return this.main.db.load({predicate:this.DBdatum.trip.predicate}).map(function(trip) { return trip.object});
+      };
       return that;
     }
     return that;
@@ -70,7 +76,7 @@ $(function() {
     return fs;
   }
 
-  $('#add textarea').keydown(function(e) {
+  $('#add input').keydown(function(e) {
     var fs = $(this).closest("fieldset");
     var is_subject = !($(fs).is(".predicate > fieldset") ||$(fs).is(".object > fieldset"))
 
@@ -155,7 +161,7 @@ $(function() {
         }
       }
       else {
-        if(!$(this).is("div.predicate > fieldset > legend > textarea")) {
+        if(!$(this).is("div.predicate > fieldset > legend > input")) {
           var newfs = entry($(this).val(), false);
           fs.before(newfs);
         }
@@ -194,6 +200,14 @@ $(function() {
     });
     a.dialog();
 
+  });
+  $('#add input')
+  .autocomplete({
+    source:function(request, response) {
+      console.log(request.term);
+      datum = $("#add").closest('div').closest('fieldset').data('datum');
+      response(datum.autocomplete(request.term));
+    }
   });
   $("#search").keydown(function(e) {
     if (e.which == 13) {
