@@ -1,107 +1,39 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <title>HIA</title>
-    <meta name="description" content="HIA site" />
-<script src = 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
-<script src = 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js'></script>
-<script src = 'aspot/lib/aspot.js'></script>
-<script src = 'hai.js'></script>
-<link rel="stylesheet" href = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'></link>
-<link rel="stylesheet" href = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/ui-lightness/jquery-ui.css'></link>
+  <meta charset="utf-8" />
+  <title>HIA</title>
+  <meta name="description" content="HIA site" />
+  <script src = 'https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js'></script>
+  <script src = 'https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js'></script>
+  <script src = 'aspot/lib/aspot.js'></script>
+  <script src = 'hai.js'></script>
+  <link rel="stylesheet" href = 'hai.css'></link>
+  <link rel="stylesheet" href = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css'></link>
+  <link rel="stylesheet" href = 'http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/ui-lightness/jquery-ui.css'></link>
 </head>
 <body>
-  <header>
-    <label for ="search">Search </label><input id="search"></input>
-    <input type='button' value = 'Save' id ='save' />
-    <input type='button' value = 'Load' id ='load' />
-  </header>
-<a href="data:application/octet-stream;charset=utf-8;base64,Zm9vIGJhcg==">text file</a>
-  
-  <section id="data">
-  <fieldset><div class="subject">
-    <!--fieldset><legend>joe</legend><div class="predicate">
-      <fieldset><legend>friend of</legend><div class="object">
-        <fieldset><legend>sue</legend><div class="predicate">
-        </div></fieldset>
-      </div></fieldset>
-      <fieldset><legend>friend of again</legend><div class="object">
-        <fieldset><legend>sam</legend><div class="predicate">
-          <fieldset><legend>son of</legend><div class="object">
-            <fieldset><legend>tim</legend><div class="predicate">
-            </div></fieldset>
-          </div></fieldset>
-          <fieldset><legend>husband of</legend><div class="object">
-            <fieldset><legend>Jo</legend><div class="predicate">
-            </div></fieldset>
-          </div></fieldset>
-        </div></fieldset>
-      </div></fieldset>
-      <fieldset><legend>is a</legend><div class="object">
-        <fieldset><legend>human</legend><div class="predicate">
-        </div></fieldset>
-      </div></fieldset>
-    </div></fieldset-->
-    <fieldset id = "add"><legend><input id="add"></input></legend></fieldset>
-  </div></fieldset>
-  </section>
+<hai></hai>
 </body>
 </html>
-<script> 
+<script>
+$(function() {
+  $("hai:not(.processed)").each(function() {
+    $(this).html(hai(aspot.localDB()).html());
+    $(this).addClass("processed");
+  });
+  $("#save").click(function(e) {
+    $("<textarea>" +JSON.stringify(hai.db.store)+"</textarea>").dialog();
+  });
+  $("#load").click(function(e) {
+    var a = $("<div><textarea></textarea><input type='button' value ='load'/></div>");
+    a.find("input").click(function (e) {
+      hai.db.store = JSON.parse($(this).prev().val());
+      a.dialog("close");
+    });
+    a.dialog();
+
+  });
+}
+);
 </script>
-<style>
-fieldset {
-  padding:0;
-  border:0;
-  margin:0;
-}
-legend {
-  position:relative;
-  float:left;
-  background: #FFFFA3;
-  border-radius:20px 20px;
-  padding:10px;
-  margin-top:5px;
-}
-.object >fieldset > legend{
-  background: #C2F0C2;
-}
-.predicate >fieldset > legend{
-  background:#33cc33;
-  margin-left: -5px;
-  margin-right: -5px;
-  opacity:.9;
-}
-fieldset div {
-  float:left;
-}
-header {
-  height: 20px;
-  position: fixed;
-  top: 0px;
-  width:100%;
-}
-body {
-  padding-top:20px;
-}
-#save,
-#load {
-  float:right;
-}
-#add input {
-  hieght: 2em;
-}
-.expand {
-  background: url(images/expand2.png);
-  height: 16px;
-  width: 16px;
-  background-size: 16px;
-  background-repeat: no-repeat;
-  cursor: pointer;
-  display:block;
-  text-indent: -9999px;
-}
-  height:48px;
-}
-</style>
