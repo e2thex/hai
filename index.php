@@ -55,7 +55,7 @@ $(function() {
   });
   $("#save").click(function(e) {
     console.log(db.store);
-    out = JSON.parse(JSON.stringify(db.store));
+    var out = Object.keys(db.store).map(function(key) { var i = db.store[key]; return {subject:i.subject, predicate:i.predicate, object:i.object}});
     $.post("index.php?db="+dbname, {data:out})
   });
 }

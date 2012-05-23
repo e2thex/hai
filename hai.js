@@ -1,3 +1,21 @@
+$.fn.getHaiDatum = function() {
+  return $(this).closest("trail").data('datum');
+};
+$.fn.getHai = function() {
+  return $(this).closest("hai").data('hai');
+};
+$.fn.getHaiBase = function() {
+  return $(this).closest("hai");
+};
+$.fn.getHaiAdd = function() {
+  return $(this).getHaiBase().find("#add");
+};
+$.fn.haiMoveAdd = function(how) {
+  var add = $(this).getHaiAdd();
+  $(this).append(add);
+  $(this).getHaiAdd().find('input').focus();
+};
+
 hai = function(db) {
   var that = {}
   that.db = db;
@@ -24,13 +42,21 @@ hai = function(db) {
     );
 
     hai_html.find(".add input").bind("save", function(e) {
-      var fs = $(this).closest("trail");
-      var is_subject = !($(fs).is("predicate > trail") ||$(fs).is("object > trail"))
-      var newfs = is_subject ?
-        hai.datum($(this).val()).trail :
-        fs.closest(".hai-trail-collection").closest("trail").data("datum").add($(this).val()).trail;
+      var trail = $(this).closest("trail");
+      var is_subject = !($(trail).is("predicate > trail") ||$(trail).is("object > trail"))
+      var newtrail = false;
+      if(datum = trail.data('currentDatum')) {
+        datum = datum.update($(this).val());
+        newtrail = datum.trail
+        trail.data('currentDatum', false);
+      }
+      else {
+        newtrail = is_subject ?
+          $(this).getHai().datum($(this).val()).trail :
+          trail.closest(".hai-trail-collection").closest("trail").data("datum").add($(this).val()).trail;
+      }
       $(this).val('');
-      fs.before(newfs);
+      trail.before(newtrail);
     });
     // move down the 
     hai_html.find(".add input").bind("moveToEndOfPrevious", function(e) {
@@ -44,7 +70,7 @@ hai = function(db) {
           break;
         }
       }
-      branch.prev().find(".hai-trail-collection").last().append(fs);
+      branch.prev().find(".hai-trail-collection").last().haiMoveAdd('append');
       fs.closest("hai").data("hai").resize();
       fs.find("input").focus();
     });
@@ -91,11 +117,8 @@ hai = function(db) {
       fs.closest("hai").data("hai").resize();
       fs.find("input").focus();
     });
-    hai_html.find(".add input").bind("editParent", function(e) {
-      var fs = $(this).closest("trail");
-      var replace = fs.parent().closest("trail");
-      $(this).val(replace.children("trail_value").contents().first().text() + ' ');
-      replace.replaceWith(fs);
+    hai_html.find(".add input").bind("focusParent", function(e) {
+      $(this).closest('trail').parent().closest("trail").children("trail_value").children("value").focus();
     });
     hai_html.find(".add input").keyup(function(e) {
       if($(this).val().match(/  $/)) {
@@ -121,8 +144,8 @@ hai = function(db) {
         if(e.which == 40) { //down arrow
           $(this).trigger("moveToEndOfNext");
         }
-        if(e.which == 8) { //down arrow
-          $(this).trigger("editParent");
+        if(e.which == 8) { //backspase
+          $(this).trigger("focusParent");
         }
       }
       console.log(e.which);
@@ -157,15 +180,23 @@ hai = function(db) {
       var add = $(this).closest("hai").find("#add");
       $(this).closest("trail").children(".hai-trail-collection").append(add);
       hai.resize();
-      add.focus();
+      add.find("input").focus();
     });
-    $(document).on("keyup", ".expand, .add-new", function(e) {
-      var add = $(this).closest("hai").find("#add");
-      add.focus();
-    });
-    $(document).on("keypress", ".expand, .add-new", function(e) {
-      $(this).trigger('click');
+    $(document).on("click", "value", function(e) {
+      var datum = $(this).getHaiDatum();
+      var add = $(this).getHaiAdd()
+      add.find("input").val(datum.value);
+      add.data("currentDatum", datum);
+      $(datum.trail).replaceWith(add);
 
+    });
+    $(document).on("keyup", ".expand, .add-new value", function(e) {
+      var add = $(this).closest("hai").find("#add");
+    });
+    $(document).on("keypress", ".expand, .add-new, value", function(e) {
+      if(e.which == 13) { //enter
+        $(this).trigger('click');
+      }
     })
 
 
@@ -178,13 +209,14 @@ hai = function(db) {
     return this.datumBranch(this.db.datum(object));
   }
   that.datumBranch = function(DBDatum) {
-    var that = {};
+    var that = DBDatum;
     that.main = this;
-    that.DBdatum = DBDatum
-    that.trail = $("<trail><trail_value>"+DBDatum.value+"<div><a tabindex = 0 class='expand'>expand</a><a tabindex = 0 class='add-new'>add</a></div></trail_value><predicate class ='hai-trail-collection'></predicate></trail>");
+    that.trail = $("<trail><trail_value><value tabindex =0 >"+DBDatum.value+"</value><div><a tabindex = 0 class='expand'>expand</a><a tabindex = 0 class='add-new'>add</a></div></trail_value><predicate class ='hai-trail-collection'></predicate></trail>");
     that.trail.data('datum', that);
     that.autocomplete = function(val) {
-      return this.main.db.load({}).map(function(trip) { return trip.predicate});
+      var ret = this.main.db.load({}).map(function(trip) { return trip.predicate});
+      return ret.filter(function(item, key) { return key == ret.indexOf(item)})
+        .filter(function(item) { return item.match(new RegExp(val,''))});
     }
     that.expand = function() {
       var detach = false;
@@ -194,8 +226,8 @@ hai = function(db) {
       }
       $(this.trail).children(".hai-trail-collection").html("");
       var datum = this
-      datum.DBdatum.attrs().forEach(function(attr) {
-        datum.DBdatum.attr(attr).forEach(function(odatum) {
+      datum.attrs().forEach(function(attr) {
+        datum.attr(attr).forEach(function(odatum) {
           var predicate = datum.generate(odatum);
           datum.trail.children(".hai-trail-collection").append(predicate.trail);
           predicate.trail.children(".hai-trail-collection").append(datum.main.datumBranch(odatum).trail);
@@ -206,21 +238,30 @@ hai = function(db) {
       }
       this.main.resize();
     }
-    that.add = function(predicate) {
-      return this.generate(this.DBdatum.attr(predicate).new());
+    that.update = function(value) {
+      this.value = value;
+      //this.trail.children("trail_value").children("value").html(value);
+      // I feel like i should not have to make a new one but the trail data is not set on the last one
+      return this.main.datumBranch(this);
     }
+    that.add = function(predicate) {
+      return this.generate(this.attr(predicate).new());
+    }
+    //make a predicate branch
     that.generate = function(datum) {
       var that = {};
       that.main = this.main;
-      that.DBdatum = datum;
-      that.trail = $("<trail><trail_value>"+datum.trip.predicate+"</trail_value><object class = 'hai-trail-collection'></object></trail>");
+
+      that.object_datum = this.main.datumBranch(datum);
+      that.value = datum.predicateValue;
+      that.trail = $("<trail><trail_value></value tab-index = 0>"+datum.trip.predicate+"</value></trail_value><object class = 'hai-trail-collection'></object></trail>");
       that.trail.data('datum', that);
-      that.add = function(object) { 
-        this.DBdatum.value = object;
-        return this.main.datumBranch(this.DBdatum);
+      that.add = function(object) {
+        return this.object_datum.update(object);
       }
       that.autocomplete = function(val) {
-        return this.main.db.load({predicate:this.DBdatum.trip.predicate}).map(function(trip) { return trip.object});
+        var ret = this.main.db.load({predicate:this.datum.trip.predicate}).map(function(trip) { return trip.object});
+        return ret.filter(function(item, key) { return key == ret.indexOf(item)});
       };
       return that;
     }
