@@ -11,7 +11,7 @@ if($_GET['data']) {
     exit;
   }
   else {
-    print '{}';
+    print '[]';
     exit;
   }
 }
