@@ -45,18 +45,34 @@ hai = function(db) {
       var trail = $(this).closest("trail");
       var is_subject = !($(trail).is("predicate > trail") ||$(trail).is("object > trail"))
       var newtrail = false;
+      var type = false
+      if($(this).val().match(/^#/)) {
+        type = $(this).val().replace(/^#/, '');
+        $(this).val(aspot.uuid());
+      }
       if(datum = trail.data('currentDatum')) {
         datum = datum.update($(this).val());
         newtrail = datum.trail
         trail.data('currentDatum', false);
       }
       else {
-        newtrail = is_subject ?
-          $(this).getHai().datum($(this).val()).trail :
-          trail.closest(".hai-trail-collection").closest("trail").data("datum").add($(this).val()).trail;
+        newdatum = is_subject ?
+          $(this).getHai().datum($(this).val()) :
+          trail.closest(".hai-trail-collection").closest("trail").data("datum").add($(this).val());
       }
       $(this).val('');
-      trail.before(newtrail);
+      if(type) {
+        var pred = newdatum.add("type of");
+        var obj = pred.add(type);
+        pred.trail.children('.hai-trail-collection').first().append(obj.trail);
+        newdatum.trail.children('.hai-trail-collection').first().append(pred.trail);
+        var autofields = $(this).getHai().db.query('[VALUE = "'+type+'"]."hai-default-field"');
+        autofields.forEach(function (d) {
+          var pred = newdatum.add(d.value);
+          newdatum.trail.children('.hai-trail-collection').first().append(pred.trail);
+        });
+      }
+      trail.before(newdatum.trail);
     });
     // move down the 
     hai_html.find(".add input").bind("moveToEndOfPrevious", function(e) {
