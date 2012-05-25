@@ -33,8 +33,11 @@ hai = function(db) {
       trail_values.width(maxWidth);
     });
     $(this.html).find('object > trail > trail_value, subject > trail > trail_value').each(function() {
-        $(this).css('height', 'auto')
-      $(this).css('height', $(this).parent().height()-25);
+        $(this).css('min-height', 'auto')
+       // $(this).parent().css('min-height','auto')
+      var h = $(this).parent().height()-25
+      $(this).css('min-height', h);
+      //$(this).parent().css('min-height', h + 25);
     });
   };
 
@@ -200,7 +203,14 @@ hai = function(db) {
         });
         }
         catch (e) {
-          subjects.append("<error>"+e.message+"</error>");
+          try {
+            hai.db.query('[SELF = "' + $(this).val() +'"]').forEach(function(datum) {
+              subjects.append(hai.datumBranch(datum).trail);
+            });
+          }
+          catch(ne) {
+            subjects.append("<error>"+e.message+"</error>");
+          }
         }
         subjects.append(add);
       }

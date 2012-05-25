@@ -4,6 +4,7 @@ trail {
   display:block;
 }
 trail {
+  clear:both;
   
 }
 .hai-trail-collection {
@@ -21,6 +22,7 @@ trail_value {
   max-width:300px;
   min-width:50px;
   font-size: 20px;
+  clear:both;
 }
 object >trail > trail_value{
   background: #57CF7C;
