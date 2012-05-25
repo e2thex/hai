@@ -20,6 +20,18 @@ hai = function(db) {
   var that = {}
   that.db = db;
   that.resize = function() {
+
+    $(this.html).find('.hai-trail-collection').each(function() {
+      var maxWidth = 0;
+      var trail_values = $('iHopeThisTagDoesNotExists');
+      $(this).children('trail').each(function() {
+        if(!$(this).is(".add"))  {
+          maxWidth = Math.max(maxWidth, $(this).children("trail_value").width());
+          trail_values = trail_values.add($(this).children("trail_value"));
+        }
+      });
+      trail_values.width(maxWidth);
+    });
     $(this.html).find('object > trail > trail_value, subject > trail > trail_value').each(function() {
         $(this).css('height', 'auto')
       $(this).css('height', $(this).parent().height()-25);
@@ -45,10 +57,14 @@ hai = function(db) {
       var trail = $(this).closest("trail");
       var is_subject = !($(trail).is("predicate > trail") ||$(trail).is("object > trail"))
       var newtrail = false;
-      var type = false
-      if($(this).val().match(/^#/)) {
-        type = $(this).val().replace(/^#/, '');
+      var type = false;
+      if (parse = /^(.*)##(.*)$/.exec($(this).val())) {
+          type = parse[2];
+        $(this).val(parse[1] == ''? '@' :parse[1]);
+      }
+      if($(this).val().match(/^@$/)) {
         $(this).val(aspot.uuid());
+
       }
       if(datum = trail.data('currentDatum')) {
         datum = datum.update($(this).val());
@@ -227,7 +243,11 @@ hai = function(db) {
   that.datumBranch = function(DBDatum) {
     var that = DBDatum;
     that.main = this;
+    
     that.trail = $("<trail><trail_value><value tabindex =0 >"+DBDatum.value+"</value><div><a tabindex = 0 class='expand'>expand</a><a tabindex = 0 class='add-new'>add</a></div></trail_value><predicate class ='hai-trail-collection'></predicate></trail>");
+    if(aspot.isUUID(DBDatum.value)) {
+      that.trail.children("trail_value").children("value").addClass("uuid");
+    }
     that.trail.data('datum', that);
     that.autocomplete = function(val) {
       var ret = this.main.db.load({}).map(function(trip) { return trip.predicate});
@@ -245,6 +265,15 @@ hai = function(db) {
       datum.attrs().forEach(function(attr) {
         datum.attr(attr).forEach(function(odatum) {
           var predicate = datum.generate(odatum);
+          datum.trail.children(".hai-trail-collection").append(predicate.trail);
+          predicate.trail.children(".hai-trail-collection").append(datum.main.datumBranch(odatum).trail);
+        });
+      });
+        console.log(datum.attrs('left'));
+      datum.attrs('left').forEach(function(attr) {
+        datum.attr(attr, 'left').forEach(function(odatum) {
+          var predicate = datum.generate(odatum);
+          predicate.trail.children("trail_value").addClass("right-to-left");
           datum.trail.children(".hai-trail-collection").append(predicate.trail);
           predicate.trail.children(".hai-trail-collection").append(datum.main.datumBranch(odatum).trail);
         });

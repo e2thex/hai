@@ -4,29 +4,71 @@ trail {
   display:block;
 }
 trail {
+  
 }
 .hai-trail-collection {
   display:inline-block;
-  min-height: 3.5em;
+  min-height: 60px;
 }
 trail_value {
   position:relative;
   float:left;
-  background: #FFFFA3;
+  background: #CFB957;
   border-radius:20px 20px;
   padding:10px;
   margin-top:5px;
   display:inline-block;
   max-width:300px;
+  min-width:50px;
+  font-size: 20px;
 }
 object >trail > trail_value{
-  background: #C2F0C2;
+  background: #57CF7C;
+  min-height:35px;
 }
 predicate >trail > trail_value{
-  background:#33cc33;
-  margin-left: -5px;
-  margin-right: -5px;
+  background:#576ED0;
+  height: 30px;
+  margin-left: 20px;
+  margin-right: 20px;
   opacity:.9;
+  position : relative;
+  border-radius:0px 0px;
+  margin-top:10px;
+}
+predicate > trail > trail_value.right-to-left {
+  background: #CF57AA;
+
+}
+predicate > trail > trail_value:after,
+predicate > trail > trail_value:before {
+  content: ' ';
+  height: 0;
+  position: absolute;
+  width: 0;
+  border: 25px solid #576ED0;
+  border-left-width: 20px;
+  border-right-width: 20px;
+  top:0;
+}
+predicate > trail > trail_value:after {
+  border-color: transparent;
+  border-left-color: #576ED0;
+  right: -40px
+}
+predicate > trail > trail_value.right-to-left:after {
+  border-color: #CF57AA transparent #CF57AA #CF57AA;
+  right:-20px;
+  z-index:-10;
+}
+predicate > trail > trail_value:before {
+  border-left-color: transparent;
+  left:-20px;
+  z-index:-10;
+}
+predicate > trail > trail_value.right-to-left:before {
+  border-color: transparent #CF57AA transparent transparent;
+  left: -40px;
 }
 trail >div {
   float:left;
@@ -45,7 +87,14 @@ body {
   float:right;
 }
 #add input {
-  hieght: 2em;
+  height: 40px;
+  margin: -7px 5px;
+  width: 200px;
+  padding: 0px;
+  font-size: 17px;
+}
+.uuid {
+  display:none;
 }
 .expand,
 .add-new {
