@@ -23,6 +23,12 @@ trail_value {
   min-width:50px;
   font-size: 20px;
   clear:both;
+  white-space:pre;
+}
+value {
+  display: inline-block;
+  max-height: 400px;
+  overflow: auto;
 }
 object >trail > trail_value{
   background: #57CF7C;
